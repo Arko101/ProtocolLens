@@ -1,0 +1,20 @@
+# .NET
+bin/
+obj/
+.vs/
+
+# Angular / Node
+node_modules/
+dist/
+.angular/
+
+# IDE
+.vscode/
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Packet captures - avoid accidentally committing captures
+*.pcap
+*.pcapng
