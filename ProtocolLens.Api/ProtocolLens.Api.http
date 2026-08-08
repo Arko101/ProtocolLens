@@ -1,0 +1,6 @@
+@ProtocolLens.Api_HostAddress = http://localhost:5015
+
+GET {{ProtocolLens.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
