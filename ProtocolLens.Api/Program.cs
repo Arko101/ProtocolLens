@@ -1,3 +1,5 @@
+using ProtocolLens.Api.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -37,23 +39,52 @@ app.MapGet("/api/status", () =>
     };
 });
 
-app.MapPost("/api/pcap", (IFormFile file) =>
+app.MapPost("/api/pcap", async (IFormFile file) =>
 {
     if (file == null || file.Length == 0)
     {
         return Results.BadRequest(new { message = "No file provided" });
     }
+    string tmpFilePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
+    try
+    {
+        var fileName = file.FileName;
+        var fileSize = file.Length;
+        var pcapReader = new PcapReader();
 
-    var fileName = file.FileName;
-    var fileSize = file.Length;
 
+        //string tmpFilePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
 
-return Results.Ok(
-    new
-{
-    fileName = fileName,
-    fileSize = fileSize
-});
+        using (var tempStream = new FileStream(tmpFilePath, FileMode.Create))
+        {
+            await file.CopyToAsync(tempStream);
+        }
+        var packetCount = pcapReader.CountPacketsInPcap(tmpFilePath);
+
+        return Results.Ok(
+          new
+          {
+              fileName = fileName,
+              fileSize = fileSize,
+              packetCount
+          }
+
+          );
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem(
+            detail: ex.Message,
+            statusCode: 500
+        );
+    }
+    finally
+    {
+        if(File.Exists(tmpFilePath))
+        {
+            File.Delete(tmpFilePath);
+        }
+    }
 }).DisableAntiforgery();
 app.Run();
 
