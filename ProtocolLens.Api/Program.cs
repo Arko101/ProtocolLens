@@ -52,9 +52,6 @@ app.MapPost("/api/pcap", async (IFormFile file) =>
         var fileSize = file.Length;
         var pcapReader = new PcapReader();
 
-
-        //string tmpFilePath = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-
         using (var tempStream = new FileStream(tmpFilePath, FileMode.Create))
         {
             await file.CopyToAsync(tempStream);

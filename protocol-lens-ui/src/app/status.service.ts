@@ -12,6 +12,6 @@ export class StatusService {
   constructor(private http: HttpClient) {}
 
   getStatus() {
-    return this.http.get<StatusResponse>('http://localhost:5015/api/status');
+    return this.http.get<StatusResponse>('http://localhost:5000/api/status');
   }
 }
