@@ -8,6 +8,6 @@ export class PcapUploadService {
   constructor(private http: HttpClient) {}
 
   onUploadPcapFile(formData: FormData) {
-    return this.http.post('http://localhost:5000/api/pcap', formData);
+    return this.http.post('http://localhost:5015/api/pcap', formData);
   }
 }

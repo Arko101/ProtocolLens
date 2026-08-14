@@ -9,7 +9,7 @@ namespace ProtocolLens.Api.Services
 {
     public class PcapReader
     {
-        public int CountPacketsInPcap(string filePath)  // A stream is basically a way to read data piece by piece
+        public List<DhcpPacketInfo> ExtractDhcpPacketsFromPcapFile(string filePath)  // A stream is basically a way to read data piece by piece
         {
             var count = 0;
             Console.WriteLine($"Reading pcap file from: {filePath}");
@@ -76,7 +76,7 @@ namespace ProtocolLens.Api.Services
 
             }
 
-            return count; // Return the actual count of packets
+            return dhcpPackets; // Return the actual count of packets
         }
     }
 }

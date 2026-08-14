@@ -56,14 +56,14 @@ app.MapPost("/api/pcap", async (IFormFile file) =>
         {
             await file.CopyToAsync(tempStream);
         }
-        var packetCount = pcapReader.CountPacketsInPcap(tmpFilePath);
+        var dhcpPackets = pcapReader.ExtractDhcpPacketsFromPcapFile(tmpFilePath);
 
         return Results.Ok(
           new
           {
               fileName = fileName,
               fileSize = fileSize,
-              packetCount
+              dhcpPackets
           }
 
           );
