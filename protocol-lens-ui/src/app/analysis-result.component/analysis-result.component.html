@@ -1,0 +1,113 @@
+@if (result) {
+  <section aria-label="Capture summary">
+    <h2>Capture summary</h2>
+    <ul>
+      <li>File: {{ result.fileName }} ({{ result.fileSizeBytes }} bytes)</li>
+      <li>Total frames read: {{ result.totalFramesRead }}</li>
+      <li>Reached end of file: {{ result.reachedEndOfFile ? 'Yes' : 'No' }}</li>
+      <li>Schema/analyzer version: {{ result.schemaVersion }} / {{ result.analyzerVersion }}</li>
+    </ul>
+
+    @if (result.diagnostics.length > 0) {
+      <div role="alert">
+        <h3>Coverage warnings and limitations</h3>
+        <ul>
+          @for (d of result.diagnostics; track d.message + d.frameNumber) {
+            <li>[{{ d.severity }}] {{ d.frameNumber ? 'Frame ' + d.frameNumber + ': ' : '' }}{{ d.message }}</li>
+          }
+        </ul>
+      </div>
+    }
+
+    <button type="button" (click)="exportJson()">Export JSON</button>
+  </section>
+
+  <section aria-label="Conversations">
+    <h2>Conversations ({{ result.conversations.length }})</h2>
+
+    <label for="conversation-filter">Filter by transaction id, flow, or identity:</label>
+    <input id="conversation-filter" type="search" (input)="onFilterInput($event)" />
+
+    @if (filteredConversations.length === 0) {
+      <p>No conversations match the current filter.</p>
+    } @else {
+      <ul>
+        @for (c of filteredConversations; track c.conversationId) {
+          <li>
+            <button type="button" (click)="selectConversation(c.conversationId)" [attr.aria-current]="selectedConversationId() === c.conversationId">
+              {{ c.transactionId }} - {{ c.flow }} - {{ c.identityEvidence ?? 'no identity evidence' }}
+              ({{ c.observations.length }} observations)
+            </button>
+          </li>
+        }
+      </ul>
+      @if (result.conversations.length > maxRenderedConversations) {
+        <p>Showing first {{ maxRenderedConversations }} of {{ result.conversations.length }} conversations. Refine the filter to see more specific results.</p>
+      }
+    }
+
+    @if (result.unresolvedObservations.length > 0) {
+      <div>
+        <h3>Ambiguous / unassigned observations ({{ result.unresolvedObservations.length }})</h3>
+        <ul>
+          @for (u of result.unresolvedObservations; track u.observation.frameNumber) {
+            <li>Frame {{ u.observation.frameNumber }} ({{ u.observation.messageType }}): {{ u.reason }}</li>
+          }
+        </ul>
+      </div>
+    }
+  </section>
+
+  @if (selectedConversation; as conversation) {
+    <section aria-label="Conversation detail">
+      <h2>Conversation detail: {{ conversation.transactionId }}</h2>
+      <p>{{ conversation.groupingRationale }}</p>
+
+      <h3>Timeline</h3>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Frame</th>
+            <th scope="col">Direction</th>
+            <th scope="col">Message type</th>
+            <th scope="col">+seconds</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (o of conversation.observations; track o.frameNumber) {
+            <tr>
+              <td>{{ o.frameNumber }}</td>
+              <td>{{ o.sourceIp }}:{{ o.sourcePort }} &rarr; {{ o.destinationIp }}:{{ o.destinationPort }}</td>
+              <td>{{ o.messageType }}</td>
+              <td>{{ relativeSeconds(conversation, o.timestamp) | number: '1.3-3' }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+
+      <h3>Findings</h3>
+      @for (f of findingsFor(conversation.conversationId); track f.ruleCode) {
+        <article>
+          <h4>{{ f.ruleCode }} ({{ f.severity }})</h4>
+          <p><strong>Expected:</strong> {{ f.expected }}</p>
+          <p><strong>Observed frames:</strong> {{ f.observedFrames.join(', ') }}</p>
+          @if (f.missingObservation) {
+            <p><strong>Missing observation:</strong> {{ f.missingObservation }}</p>
+          }
+          <p>{{ f.explanation }}</p>
+          @if (f.hypotheses.length > 0) {
+            <p><strong>Hypotheses:</strong> {{ f.hypotheses.join('; ') }}</p>
+          }
+          @if (f.nextChecks.length > 0) {
+            <p><strong>Next checks:</strong> {{ f.nextChecks.join('; ') }}</p>
+          }
+          @if (f.notEvaluatedReason) {
+            <p><strong>Not evaluated:</strong> {{ f.notEvaluatedReason }}</p>
+          }
+        </article>
+      }
+    </section>
+  }
+} @else {
+  <p>No analysis result yet.</p>
+}

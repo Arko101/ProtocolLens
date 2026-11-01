@@ -1,3 +1,5 @@
-<Solution>
+﻿<Solution>
   <Project Path="ProtocolLens.Api/ProtocolLens.Api.csproj" />
+  <Project Path="ProtocolLens.Core/ProtocolLens.Core.csproj" />
+  <Project Path="ProtocolLens.Core.Tests/ProtocolLens.Core.Tests.csproj" />
 </Solution>

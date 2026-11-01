@@ -4,6 +4,8 @@
 
 <p>{{ statusMessage }}</p>
 
-<app-pcap-upload></app-pcap-upload>
+<app-pcap-upload (resultChanged)="onResultChanged($event)"></app-pcap-upload>
+
+<app-analysis-result [result]="analysisResult"></app-analysis-result>
 
 <router-outlet />

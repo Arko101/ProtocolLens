@@ -1,3 +1,25 @@
 <h1>PCAP file upload</h1>
 
-<input type="file" (change)="onPcapFileSelected($event)" />
+<label for="pcap-file-input">Select a PCAP/PCAPNG capture (Ethernet/IPv4/UDP DHCPv4, single-tag 802.1Q supported):</label>
+<input
+  id="pcap-file-input"
+  type="file"
+  accept=".pcap,.pcapng,.cap"
+  [disabled]="isBusy"
+  (change)="onPcapFileSelected($event)"
+  aria-describedby="pcap-upload-status"
+/>
+
+<p id="pcap-upload-status" role="status">
+  @switch (state) {
+    @case ('idle') { Idle. Choose a capture file to analyze. }
+    @case ('uploading') {
+      Uploading and analyzing{{ selectedFile ? ' ' + selectedFile.name : '' }}&hellip;
+      <button type="button" (click)="cancelUpload()">Cancel</button>
+    }
+    @case ('success') { Analysis complete. }
+    @case ('empty') { Analysis complete: no DHCP traffic was found in this capture. }
+    @case ('partial') { Analysis complete, but coverage is partial - see limitations below. }
+    @case ('error') { <span role="alert">Error: {{ errorMessage }}</span> }
+  }
+</p>

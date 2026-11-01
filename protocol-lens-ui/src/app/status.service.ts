@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { API_BASE_URL } from './api-config';
 
 interface StatusResponse {
   message: string;
@@ -12,6 +13,6 @@ export class StatusService {
   constructor(private http: HttpClient) {}
 
   getStatus() {
-    return this.http.get<StatusResponse>('http://localhost:5000/api/status');
+    return this.http.get<StatusResponse>(`${API_BASE_URL}/api/status`);
   }
 }
